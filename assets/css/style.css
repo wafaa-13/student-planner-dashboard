@@ -84,7 +84,7 @@ button:hover {
 
 .dashboard-card {
     width: 100%;
-    max-width: 900px;
+    max-width: 980px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
@@ -106,6 +106,7 @@ button:hover {
     border: 1px solid #e5e7eb;
     padding: 10px;
     text-align: left;
+    vertical-align: middle;
 }
 
 .assignments-table thead th {
@@ -119,4 +120,69 @@ button:hover {
 .empty-row {
     text-align: center;
     color: #6b7280;
+}
+
+/* Status color badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.status-red {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-orange {
+    background-color: #ffedd5;
+    color: #c2410c;
+}
+
+.status-green {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+/* Action buttons in the dashboard table */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    display: inline-block;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    width: auto;
+}
+
+.btn-edit {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.btn-edit:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-delete {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+.btn-delete:hover {
+    background-color: #b91c1c;
+}
+
+.action-buttons form {
+    margin: 0;
 }
