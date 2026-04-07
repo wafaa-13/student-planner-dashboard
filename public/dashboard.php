@@ -165,6 +165,8 @@ if ($result && $result->num_rows > 0) {
 
 // ---------------- GPA Section (Classes + Grades) ----------------
 $classRows = [];
+$overallPercent = null;
+$overallGpa = null;
 $classQuery = $conn->query('SELECT id, class_name FROM classes ORDER BY class_name ASC');
 
 if ($classQuery instanceof mysqli_result) {
@@ -200,6 +202,19 @@ if ($classQuery instanceof mysqli_result) {
     $classQuery->free();
 } else {
     $gpaErrorMessage = 'Could not read classes. Please create classes and grades tables first.';
+}
+
+// Calculate overall GPA dynamically on every page load.
+// This value is NOT stored in the database.
+if (count($classRows) > 0) {
+    $sumOfFinalGrades = 0.0;
+
+    foreach ($classRows as $classRow) {
+        $sumOfFinalGrades += (float) $classRow['final_grade'];
+    }
+
+    $overallPercent = $sumOfFinalGrades / count($classRows);
+    $overallGpa = ($overallPercent / 100) * 4;
 }
 
 require_once '../includes/header.php';
@@ -285,6 +300,12 @@ require_once '../includes/header.php';
             <h2>GPA Section (Class Final Grades)</h2>
             <p>
                 Final grade formula per class: <strong>sum(score × weight) / 100</strong>
+            </p>
+            <p>
+                Overall GPA (4.0 scale) is calculated on every reload from class grades:
+                <strong>
+                    <?php echo $overallGpa === null ? 'N/A' : htmlspecialchars((string) number_format($overallGpa, 2)); ?>
+                </strong>
             </p>
             <p>
                 Manage your GPA data:

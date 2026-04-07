@@ -8,12 +8,14 @@ $componentName = '';
 $score = '';
 $weight = '';
 $classOptions = [];
+$classIds = [];
 
 // Load class list for dropdown.
 $classResult = $conn->query('SELECT id, class_name FROM classes ORDER BY class_name ASC');
 if ($classResult instanceof mysqli_result) {
     while ($classRow = $classResult->fetch_assoc()) {
         $classOptions[] = $classRow;
+        $classIds[] = (string) $classRow['id'];
     }
     $classResult->free();
 }
@@ -27,6 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($classId === '' || $componentName === '' || $score === '' || $weight === '') {
         $errorMessage = 'Please fill in all fields.';
+    } elseif (!in_array($classId, $classIds, true)) {
+        $errorMessage = 'Please select a valid class.';
     } elseif (!is_numeric($score) || !is_numeric($weight)) {
         $errorMessage = 'Score and weight must be numbers.';
     } else {
@@ -46,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param('isdd', $classIdNumber, $componentName, $scoreNumber, $weightNumber);
 
                 if ($stmt->execute()) {
-                    $successMessage = 'Grade component added successfully.';
+                    $successMessage = 'Grade added successfully';
                     $classId = '';
                     $componentName = '';
                     $score = '';

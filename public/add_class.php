@@ -19,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param('s', $className);
 
             if ($stmt->execute()) {
-                $successMessage = 'Class added successfully.';
+                // Keep success text exactly as requested.
+                $successMessage = 'Class added successfully';
                 $className = '';
             } else {
                 $errorMessage = 'Could not save class. Please try again.';
