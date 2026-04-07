@@ -10,6 +10,10 @@ require_once '../includes/header.php';
             Start by adding your first assignment:
             <a href="add_assignment.php">Add Assignment</a>
         </p>
+        <p>
+            Want to see your weighted results? Open the
+            <a href="gpa.php">GPA Calculator</a>.
+        </p>
     </div>
 </div>
 

@@ -208,3 +208,34 @@ button:hover {
 .notification-item:last-child {
     margin-bottom: 0;
 }
+
+.gpa-explain-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.gpa-explain-box h2 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.gpa-summary {
+    margin-top: 14px;
+    margin-bottom: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.chart-card {
+    margin-top: 10px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
