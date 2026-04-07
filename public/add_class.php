@@ -38,6 +38,8 @@ require_once '../includes/header.php';
 
 <div class="page-wrapper">
     <div class="form-card">
+        <!-- Navigation only: this link changes page, not database data -->
+        <a class="top-back-link" href="gpa.php">← Back to GPA</a>
         <h1>Add Class</h1>
 
         <?php if ($successMessage !== ''): ?>

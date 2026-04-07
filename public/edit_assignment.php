@@ -110,6 +110,8 @@ require_once '../includes/header.php';
 
 <div class="page-wrapper">
     <div class="form-card">
+        <!-- Navigation only: this link changes page, not database data -->
+        <a class="top-back-link" href="dashboard.php">← Back to Dashboard</a>
         <h1>Edit Assignment</h1>
 
         <?php if ($successMessage !== ''): ?>
