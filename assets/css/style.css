@@ -81,3 +81,42 @@ button:hover {
     color: #991b1b;
     border: 1px solid #fca5a5;
 }
+
+.dashboard-card {
+    width: 100%;
+    max-width: 900px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+}
+
+.dashboard-card h1 {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.assignments-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.assignments-table th,
+.assignments-table td {
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    text-align: left;
+}
+
+.assignments-table thead th {
+    background-color: #f9fafb;
+}
+
+.assignments-table tbody tr:nth-child(even) {
+    background-color: #fcfcfd;
+}
+
+.empty-row {
+    text-align: center;
+    color: #6b7280;
+}
