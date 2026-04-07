@@ -1,38 +1,65 @@
 <?php
+// Use the existing MySQLi connection
 require_once '../config/db.php';
 
 $successMessage = '';
 $errorMessage = '';
 
-// Handle form submit with POST
+// Keep old values so the form can refill if validation fails
+$title = '';
+$type = '';
+$difficulty = '';
+$dueDate = '';
+
+// Run this block only when the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Trim values to avoid spaces-only input
+    // Read and trim form values from POST
     $title = trim($_POST['title'] ?? '');
     $type = trim($_POST['type'] ?? '');
     $difficulty = trim($_POST['difficulty'] ?? '');
     $dueDate = trim($_POST['due_date'] ?? '');
 
-    // Basic required field validation
+    // Basic validation: all fields are required
     if ($title === '' || $type === '' || $difficulty === '' || $dueDate === '') {
-        $errorMessage = 'Please fill in all required fields.';
+        $errorMessage = 'Please fill in all fields.';
     } else {
-        // Map UI values to current DB columns in assignments table
-        // type -> subject, difficulty -> priority
-        $insertSql = 'INSERT INTO assignments (title, subject, due_date, priority) VALUES (?, ?, ?, ?)';
-        $statement = $conn->prepare($insertSql);
+        // assignments table currently has columns: title, subject, due_date, priority
+        // so we map:
+        // - Type -> subject
+        // - Difficulty (Easy/Medium/Hard) -> priority (low/medium/high)
+        $priorityMap = [
+            'Easy' => 'low',
+            'Medium' => 'medium',
+            'Hard' => 'high'
+        ];
 
-        if ($statement) {
-            $statement->bind_param('ssss', $title, $type, $dueDate, $difficulty);
-
-            if ($statement->execute()) {
-                $successMessage = 'Assignment added successfully';
-            } else {
-                $errorMessage = 'Could not save assignment. Please try again.';
-            }
-
-            $statement->close();
+        if (!isset($priorityMap[$difficulty])) {
+            $errorMessage = 'Invalid difficulty selected.';
         } else {
-            $errorMessage = 'Could not prepare database query.';
+            $priority = $priorityMap[$difficulty];
+
+            // Prepared statement helps keep SQL safe and simple
+            $sql = 'INSERT INTO assignments (title, subject, due_date, priority) VALUES (?, ?, ?, ?)';
+            $stmt = $conn->prepare($sql);
+
+            if ($stmt) {
+                $stmt->bind_param('ssss', $title, $type, $dueDate, $priority);
+
+                if ($stmt->execute()) {
+                    $successMessage = 'Assignment added successfully';
+                    // Clear fields after successful insert
+                    $title = '';
+                    $type = '';
+                    $difficulty = '';
+                    $dueDate = '';
+                } else {
+                    $errorMessage = 'Could not save assignment. Please try again.';
+                }
+
+                $stmt->close();
+            } else {
+                $errorMessage = 'Could not prepare database query.';
+            }
         }
     }
 }
@@ -55,16 +82,22 @@ require_once '../includes/header.php';
         <form method="POST" action="">
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" id="title" name="title" required>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value="<?php echo htmlspecialchars($title); ?>"
+                    required
+                >
             </div>
 
             <div class="form-group">
                 <label for="type">Type</label>
                 <select id="type" name="type" required>
                     <option value="">Select type</option>
-                    <option value="Exam">Exam</option>
-                    <option value="Homework">Homework</option>
-                    <option value="Project">Project</option>
+                    <option value="Exam" <?php echo $type === 'Exam' ? 'selected' : ''; ?>>Exam</option>
+                    <option value="Homework" <?php echo $type === 'Homework' ? 'selected' : ''; ?>>Homework</option>
+                    <option value="Project" <?php echo $type === 'Project' ? 'selected' : ''; ?>>Project</option>
                 </select>
             </div>
 
@@ -72,15 +105,21 @@ require_once '../includes/header.php';
                 <label for="difficulty">Difficulty</label>
                 <select id="difficulty" name="difficulty" required>
                     <option value="">Select difficulty</option>
-                    <option value="low">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">Hard</option>
+                    <option value="Easy" <?php echo $difficulty === 'Easy' ? 'selected' : ''; ?>>Easy</option>
+                    <option value="Medium" <?php echo $difficulty === 'Medium' ? 'selected' : ''; ?>>Medium</option>
+                    <option value="Hard" <?php echo $difficulty === 'Hard' ? 'selected' : ''; ?>>Hard</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label for="due_date">Due Date</label>
-                <input type="date" id="due_date" name="due_date" required>
+                <input
+                    type="date"
+                    id="due_date"
+                    name="due_date"
+                    value="<?php echo htmlspecialchars($dueDate); ?>"
+                    required
+                >
             </div>
 
             <button type="submit">Add Assignment</button>
