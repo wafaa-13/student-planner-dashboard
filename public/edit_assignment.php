@@ -3,6 +3,7 @@ require_once '../config/db.php';
 
 $successMessage = '';
 $errorMessage = '';
+$showSuccessLinks = false;
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
@@ -64,13 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param('ssssi', $title, $type, $priority, $dueDate, $id);
 
             if ($stmt->execute()) {
+                // Show this only after a successful POST update.
+                $successMessage = 'Assignment updated successfully';
+                $showSuccessLinks = true;
                 $stmt->close();
-                header('Location: dashboard.php?message=updated');
-                exit;
+            } else {
+                $errorMessage = 'Could not update assignment. Please try again.';
+                $stmt->close();
             }
-
-            $errorMessage = 'Could not update assignment. Please try again.';
-            $stmt->close();
         } else {
             $errorMessage = 'Could not prepare database query.';
         }
@@ -116,6 +118,15 @@ require_once '../includes/header.php';
 
         <?php if ($successMessage !== ''): ?>
             <div class="message success"><?php echo htmlspecialchars($successMessage); ?></div>
+            <?php if ($showSuccessLinks): ?>
+                <!-- These links appear only after a successful update. -->
+                <p style="margin-top: 10px;">
+                    <a href="add_assignment.php">Add another assignment</a>
+                </p>
+                <p style="margin-top: 6px;">
+                    <a href="dashboard.php">Back to Dashboard</a>
+                </p>
+            <?php endif; ?>
         <?php endif; ?>
 
         <?php if ($errorMessage !== ''): ?>

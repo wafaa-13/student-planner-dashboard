@@ -222,6 +222,9 @@ require_once '../includes/header.php';
 
 <div class="page-wrapper">
     <div class="dashboard-card">
+        <p style="margin-bottom: 12px;">
+            <a href="add_assignment.php">+ Add New Assignment</a>
+        </p>
         <h1>Assignments Dashboard</h1>
 
         <?php if ($successMessage !== ''): ?>

@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param('ssss', $title, $type, $dueDate, $priority);
 
                 if ($stmt->execute()) {
+                    // Show success content only after a successful POST insert.
                     $successMessage = 'Assignment added successfully';
                     // Clear fields after successful insert
                     $title = '';
@@ -75,6 +76,13 @@ require_once '../includes/header.php';
 
         <?php if ($successMessage !== ''): ?>
             <div class="message success"><?php echo htmlspecialchars($successMessage); ?></div>
+            <!-- These links appear only after a successful insert. -->
+            <p style="margin-top: 10px;">
+                <a href="add_assignment.php">Add another assignment</a>
+            </p>
+            <p style="margin-top: 6px;">
+                <a href="dashboard.php">Back to Dashboard</a>
+            </p>
         <?php endif; ?>
 
         <?php if ($errorMessage !== ''): ?>
