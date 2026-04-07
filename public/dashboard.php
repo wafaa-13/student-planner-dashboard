@@ -5,6 +5,7 @@ require_once '../config/db.php';
 // Show small feedback messages after delete or edit actions
 $successMessage = '';
 $errorMessage = '';
+$gpaErrorMessage = '';
 
 if (isset($_GET['message'])) {
     if ($_GET['message'] === 'deleted') {
@@ -162,6 +163,45 @@ if ($result && $result->num_rows > 0) {
     }
 }
 
+// ---------------- GPA Section (Classes + Grades) ----------------
+$classRows = [];
+$classQuery = $conn->query('SELECT id, class_name FROM classes ORDER BY class_name ASC');
+
+if ($classQuery instanceof mysqli_result) {
+    $gradeStmt = $conn->prepare('SELECT score, weight FROM grades WHERE class_id = ?');
+
+    if ($gradeStmt) {
+        while ($classRow = $classQuery->fetch_assoc()) {
+            $classId = (int) $classRow['id'];
+            $weightedTotal = 0;
+
+            // Fetch all grade components for this class using class_id.
+            $gradeStmt->bind_param('i', $classId);
+            $gradeStmt->execute();
+            $gradeResult = $gradeStmt->get_result();
+
+            if ($gradeResult instanceof mysqli_result) {
+                while ($grade = $gradeResult->fetch_assoc()) {
+                    // Formula: sum(score × weight) / 100
+                    $weightedTotal += ((float) $grade['score'] * (float) $grade['weight']);
+                }
+                $gradeResult->free();
+            }
+
+            $classRow['final_grade'] = $weightedTotal / 100;
+            $classRows[] = $classRow;
+        }
+
+        $gradeStmt->close();
+    } else {
+        $gpaErrorMessage = 'Could not prepare grade query.';
+    }
+
+    $classQuery->free();
+} else {
+    $gpaErrorMessage = 'Could not read classes. Please create classes and grades tables first.';
+}
+
 require_once '../includes/header.php';
 ?>
 
@@ -240,6 +280,45 @@ require_once '../includes/header.php';
                 <?php endif; ?>
             </tbody>
         </table>
+
+        <div class="notifications-section" style="margin-top: 24px;">
+            <h2>GPA Section (Class Final Grades)</h2>
+            <p>
+                Final grade formula per class: <strong>sum(score × weight) / 100</strong>
+            </p>
+            <p>
+                Manage your GPA data:
+                <a href="add_class.php">Add Class</a> |
+                <a href="add_grade.php">Add Grade</a>
+            </p>
+
+            <?php if ($gpaErrorMessage !== ''): ?>
+                <div class="message error"><?php echo htmlspecialchars($gpaErrorMessage); ?></div>
+            <?php endif; ?>
+
+            <table class="assignments-table">
+                <thead>
+                    <tr>
+                        <th>Class Name</th>
+                        <th>Final Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (count($classRows) > 0): ?>
+                        <?php foreach ($classRows as $classRow): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($classRow['class_name']); ?></td>
+                                <td><?php echo htmlspecialchars((string) number_format((float) $classRow['final_grade'], 2)); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="2" class="empty-row">No classes found yet. Add a class, then add grade components.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
