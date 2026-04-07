@@ -31,3 +31,14 @@ CREATE TABLE IF NOT EXISTS gpa_records (
     CHECK (credits_attempted >= 0),
     CHECK (credits_earned >= 0)
 );
+
+
+-- 3) Classes table used by GPA Calculator page
+CREATE TABLE IF NOT EXISTS classes (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    class_name VARCHAR(100) NOT NULL,
+    score DECIMAL(5,2) NOT NULL,
+    weight DECIMAL(5,2) NOT NULL,
+    CHECK (score >= 0),
+    CHECK (weight >= 0 AND weight <= 100)
+);
