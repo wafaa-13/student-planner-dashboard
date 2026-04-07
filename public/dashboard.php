@@ -121,6 +121,47 @@ function getEstimatedTime(string $difficulty, string $type): string
     return $totalHours . ' hours';
 }
 
+/**
+ * Build a user-friendly notification sentence based on due date and title.
+ */
+function getNotificationMessage(array $assignment, DateTime $today, DateTime $tomorrow): string
+{
+    $due = new DateTime($assignment['due_date']);
+    $title = $assignment['title'];
+
+    // Reuse the same time estimation function already used by the table.
+    $estimatedTime = getEstimatedTime($assignment['priority'], $assignment['subject']);
+
+    // Message rules based on how close the due date is.
+    if ($due->format('Y-m-d') === $today->format('Y-m-d')) {
+        return '🔴 ' . $title . ' is due today! Start now. Estimated time: ' . $estimatedTime . '.';
+    }
+
+    if ($due->format('Y-m-d') === $tomorrow->format('Y-m-d')) {
+        return '🟡 ' . $title . ' is due tomorrow. Plan your time. Estimated time: ' . $estimatedTime . '.';
+    }
+
+    $daysLeft = (int) $today->diff($due)->format('%r%a');
+
+    if ($daysLeft > 1) {
+        return '🟢 ' . $title . ' is coming up in ' . $daysLeft . ' days. Estimated time: ' . $estimatedTime . '.';
+    }
+
+    // Small fallback for older assignments so message still stays clear.
+    return '🔴 ' . $title . ' is overdue. Estimated time: ' . $estimatedTime . '.';
+}
+
+$assignments = [];
+$notifications = [];
+
+if ($result && $result->num_rows > 0) {
+    // Use a while loop to process each assignment once and build notifications.
+    while ($row = $result->fetch_assoc()) {
+        $assignments[] = $row;
+        $notifications[] = getNotificationMessage($row, $today, $tomorrow);
+    }
+}
+
 require_once '../includes/header.php';
 ?>
 
@@ -136,6 +177,18 @@ require_once '../includes/header.php';
             <div class="message error"><?php echo htmlspecialchars($errorMessage); ?></div>
         <?php endif; ?>
 
+        <div class="notifications-section">
+            <h2>Notifications</h2>
+
+            <?php if (count($notifications) > 0): ?>
+                <?php foreach ($notifications as $notification): ?>
+                    <div class="notification-item"><?php echo htmlspecialchars($notification); ?></div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="notification-item">No notifications yet. Add assignments to see reminders.</div>
+            <?php endif; ?>
+        </div>
+
         <table class="assignments-table">
             <thead>
                 <tr>
@@ -149,8 +202,8 @@ require_once '../includes/header.php';
                 </tr>
             </thead>
             <tbody>
-                <?php if ($result && $result->num_rows > 0): ?>
-                    <?php while ($row = $result->fetch_assoc()): ?>
+                <?php if (count($assignments) > 0): ?>
+                    <?php foreach ($assignments as $row): ?>
                         <?php
                         $statusText = getDueStatus($row['due_date'], $today, $tomorrow);
                         $statusClass = getStatusClass($statusText);
@@ -179,7 +232,7 @@ require_once '../includes/header.php';
                                 </div>
                             </td>
                         </tr>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
                         <td colspan="7" class="empty-row">No assignments found yet.</td>
