@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS assignments (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 2) Basic GPA records table (simple version)
+-- 2) Basic GPA records table
 CREATE TABLE IF NOT EXISTS gpa_records (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     term_name VARCHAR(50) NOT NULL,
@@ -32,13 +32,24 @@ CREATE TABLE IF NOT EXISTS gpa_records (
     CHECK (credits_earned >= 0)
 );
 
-
--- 3) Classes table used by GPA Calculator page
+-- 3) Classes table
+-- One row = one class (example: Math 101)
 CREATE TABLE IF NOT EXISTS classes (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    class_name VARCHAR(100) NOT NULL,
+    class_name VARCHAR(100) NOT NULL
+);
+
+-- 4) Grades table
+-- One class can have many grade components linked by class_id
+CREATE TABLE IF NOT EXISTS grades (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    class_id INT UNSIGNED NOT NULL,
+    component_name VARCHAR(100) NOT NULL,
     score DECIMAL(5,2) NOT NULL,
     weight DECIMAL(5,2) NOT NULL,
-    CHECK (score >= 0),
-    CHECK (weight >= 0 AND weight <= 100)
+    CHECK (score >= 0 AND score <= 100),
+    CHECK (weight >= 0 AND weight <= 100),
+    CONSTRAINT fk_grades_class
+        FOREIGN KEY (class_id) REFERENCES classes(id)
+        ON DELETE CASCADE
 );
