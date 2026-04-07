@@ -45,7 +45,7 @@ require_once '../includes/header.php';
 <div class="page-wrapper">
     <div class="dashboard-card">
         <!-- Navigation only: this link changes page, not database data -->
-        <a class="top-back-link" href="gpa.php">← Back to GPA</a>
+        <a class="top-back-link" href="dashboard.php">← Back to Dashboard</a>
         <h1>GPA Calculator</h1>
 
         <div class="gpa-explain-box">
